@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Редактировать страну{% else %}Добавить страну{% endif %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if object %}Редактировать страну{% else %}Добавить страну{% endif %}</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.as_p }}
+    </div>
+    <h2 class="mb-3">Режим въезда</h2>
+    <div class="mb-3">
+        {{ entry_regime_form.as_p }}
+    </div>
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}

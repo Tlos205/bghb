@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ country.full_name }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ country.full_name }}</h1>
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Информация о стране</h5>
+        <p class="card-text">Краткое название: {{ country.short_name }}</p>
+        <p class="card-text">Код страны (3 буквы): {{ country.code_3 }}</p>
+        <p class="card-text">Код страны (2 буквы): {{ country.code_2 }}</p>
+    </div>
+</div>
+
+<h2 class="mb-3">Режимы въезда</h2>
+<ul class="list-group mb-4">
+    {% for regime in entry_regimes %}
+        <li class="list-group-item">
+            {{ regime.regime|safe }} - {{ regime.regulatory_legal_acts|safe }} ({{ regime.note }})
+        </li>
+    {% endfor %}
+</ul>
+
+<h2 class="mb-3">Типы документов</h2>
+<ul class="list-group mb-4">
+    {% for document_type in country.document_types.all %}
+        <li class="list-group-item">
+            <a href="{% url 'documents:document_type_detail' document_type.pk %}">
+                {{ document_type.name }} ({{ document_type.code }})
+            </a>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Нет связанных типов документов.</li>
+    {% endfor %}
+</ul>
+
+{% if user.is_staff %}
+<a href="{% url 'countries:country_update' country.pk %}" class="btn btn-warning">Редактировать</a>
+<a href="{% url 'documents:document_type_add' country_id=country.pk %}" class="btn btn-warning">Добавить документ</a>
+{% endif %}
+
+{% endblock %}
+
+

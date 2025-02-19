@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ document_type.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Заголовок -->
+    <h1 class="mb-4">{{ document_type.name }} ({{ document_type.code }})</h1>
+
+    <!-- Информация о типе документа -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Информация о типе документа</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="card-text"><strong>Категория:</strong> {{ document_type.category|default:"Не указано" }}</p>
+                    <p class="card-text"><strong>Тип:</strong> {{ document_type.type|default:"Не указано" }}</p>
+                    <p class="card-text"><strong>Дата первой выдачи:</strong> {{ document_type.first_issue_date|default:"Не указано" }}</p>
+                    <p class="card-text"><strong>Действующий:</strong> {{ document_type.valid|yesno:"Да,Нет" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="card-text"><strong>Юридический статус:</strong> {{ document_type.legal_status|default:"Не указано" }}</p>
+                    <p class="card-text"><strong>Размеры:</strong> {{ document_type.length|default:"Не указано" }} x {{ document_type.width|default:"Не указано" }} см</p>
+                    <p class="card-text"><strong>Количество страниц:</strong> {{ document_type.pages|default:"Не указано" }}</p>
+                    <p class="card-text"><strong>Срок действия:</strong> {{ document_type.validity_period|default:"Не указано" }} лет</p>
+                    <p class="card-text"><strong>Возможность продления:</strong> {{ document_type.renewable|yesno:"Да,Нет" }}</p>
+                </div>
+            </div>
+            <hr>
+            <p class="card-text">
+                <strong>Государство:</strong>
+                {% if document_type.issuing_country %}
+                    {{ document_type.issuing_country.full_name }}
+                {% else %}
+                    Не указано
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Особенности документа -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">Особенности документа</h5>
+        </div>
+        <div class="card-body">
+            {% if document_type.features.all %}
+                <div class="accordion" id="featuresAccordion">
+                    {% for feature in document_type.features.all %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                                    {{ feature.feature_name }}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#featuresAccordion">
+                                
+                            <div class="accordion-body">
+
+                                    <ul class="list-group list-group-flush">
+                                        {% for detail in feature.details.all %}
+                                      
+                                        
+
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>{{ detail.key }}:</strong> {{ detail.value }}
+                                                    {% if detail.image %}
+                                                        <div class="mt-2">
+                                                            <img src="{{ detail.image.url }}" alt="{{ detail.key }}" class="img-fluid rounded" style="max-width: 100%; height: auto;">
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                {% if user.is_staff %}
+                                                    <a href="{% url 'documents:feature_detail_edit' pk=detail.pk %}" class="btn btn-sm btn-warning">Редактировать деталь</a>
+                                                {% endif %}
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+
+                                    {% if user.is_staff %}
+                                        <div class="mt-3">
+                                            <a href="{% url 'documents:feature_detail_add' feature_id=feature.pk %}" class="btn btn-sm btn-info">Добавить деталь</a>
+                                            <a href="{% url 'documents:document_feature_edit' pk=feature.pk %}" class="btn btn-sm btn-warning">Редактировать особенность</a>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Нет особенностей.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="text-center mb-4">
+        {% if document_type.issuing_country %}
+            <a href="{% url 'countries:country_detail' document_type.issuing_country.pk %}" class="btn btn-secondary">Назад к списку</a>
+        {% else %}
+            <p class="text-danger">Страна не назначена.</p>
+        {% endif %}
+        {% if user.is_staff %}
+            <a href="{% url 'documents:document_feature_add' document_id=document_type.pk %}" class="btn btn-primary">Добавить особенность</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

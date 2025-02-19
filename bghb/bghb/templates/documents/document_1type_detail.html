@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ document_type.name }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ document_type.name }} ({{ document_type.code }})</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Информация о типе документа</h5>
+        <p class="card-text"><strong>Категория:</strong> {{ document_type.category }}</p>
+        <p class="card-text"><strong>Тип:</strong> {{ document_type.type }}</p>
+        <p class="card-text"><strong>Дата первой выдачи:</strong> {{ document_type.first_issue_date }}</p>
+        <p class="card-text"><strong>Действующий:</strong> {{ document_type.valid|yesno:"Да,Нет" }}</p>
+        <p class="card-text"><strong>Юридический статус:</strong> {{ document_type.legal_status }}</p>
+        <p class="card-text"><strong>Размеры:</strong> {{ document_type.length }} x {{ document_type.width }} см</p>
+        <p class="card-text"><strong>Количество страниц:</strong> {{ document_type.pages }}</p>
+        <p class="card-text"><strong>Срок действия:</strong> {{ document_type.validity_period }} лет</p>
+        <p class="card-text"><strong>Возможность продления:</strong> {{ document_type.renewable|yesno:"Да,Нет" }}</p>
+        <p class="card-text"><strong>Государство:</strong> {{ document_type.issuing_country.full_name }}</p>
+    </div>
+</div>
+
+<h2 class="mb-3">Особенности документа</h2>
+<ul class="list-group mb-4">
+    {% for feature in document_type.features.all %}
+        <li class="list-group-item">
+            <h5>{{ feature.feature_name }}</h5>
+            <ul>
+                {% for detail in feature.details.all %}
+                    <li>
+                        <strong>{{ detail.key }}:</strong> {{ detail.value }}
+                        {% if detail.image %}
+                            <img src="{{ detail.image.url }}" alt="{{ detail.key }}" style="max-width: 200px; height: auto;">
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Нет особенностей.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'countries:country_detail' document_type.issuing_country.pk %}" class="btn btn-secondary">Назад к списку</a>
+{% endblock %}

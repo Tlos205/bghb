@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Список стран{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Список стран</h1>
+
+<!-- Отображение поискового запроса -->
+{% if request.GET.q %}
+    <p>Результаты поиска для: <strong>{{ request.GET.q }}</strong></p>
+{% endif %}
+
+<!-- Список стран -->
+<div class="list-group">
+    {% for country in countries %}
+        <a href="{% url 'countries:country_detail' country.pk %}" class="list-group-item list-group-item-action">
+            {{ country.full_name }} ({{ country.short_name }})
+        </a>
+    {% empty %}
+        <p class="text-muted">Страны не найдены.</p>
+    {% endfor %}
+</div>
+
+<!-- Пагинация (опционально) -->
+{% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Назад</a>
+                </li>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Вперед</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+{% if user.is_staff %}
+<a href="{% url 'countries:country_create' %}" class="btn btn-primary mt-3">Добавить страну</a>
+{% endif %}
+
+{% endblock %}
