@@ -1,5 +1,3 @@
-
-# define an alias for the specific python version used in this file.
 FROM docker.io/python:3.12.9-slim-bookworm AS python
 
 # Python build stage
@@ -51,10 +49,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --no-cache-dir gunicorn==20.1.0
 # All absolute dir copies ignore workdir instruction. All relative dir copies are wrt to the workdir instruction
 # copy python dependency wheels from python-build-stage
 COPY --from=python-build-stage /usr/src/app/wheels  /wheels/
-
 # use wheels to install python dependencies
 RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
   && rm -rf /wheels/
@@ -72,14 +70,10 @@ RUN chmod +x /start
 
 # copy application code to WORKDIR
 COPY --chown=django:django . ${APP_HOME}
-
+RUN ls -la ${APP_HOME}
 # make django owner of the WORKDIR directory as well.
 RUN chown -R django:django ${APP_HOME}
 
 USER django
-
-RUN DATABASE_URL="" \
-  DJANGO_SETTINGS_MODULE="config.settings.test" \
-  python manage.py compilemessages
 
 ENTRYPOINT ["/entrypoint"]

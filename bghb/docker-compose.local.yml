@@ -32,4 +32,4 @@ services:
       - bghb_local_postgres_data_backups:/backups
       - /Users/artemtkalin/PycharmProjects/new1902/bghb/backups:/backups:z
     env_file:
-      - ./.envs/.local/.postgres
+      - .env
