@@ -275,3 +275,4 @@ bghb/media/
 .ipython/
 .env
 .envs/*
+bghb/db.json
